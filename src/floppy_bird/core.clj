@@ -2,11 +2,19 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
+(defn pipe-generator []
+  (let [top (+ 50 (rand-int 300))
+        bottom (-> (+ 300 (rand-int 200))
+                   (max (+ top 100))
+                   (min (+ top 200)))]
+    [top bottom]))
+
 (def initial-state
   {:lost false
    :bird-height 250
    :bird-speed 0
-   :pipes '([300 150 250])})
+   :pipes (map conj (repeatedly pipe-generator)
+               (iterate (partial + 150) 300))})
 
 (defn setup []
   (q/frame-rate 30)
@@ -19,7 +27,9 @@
     (neg? (:bird-height state)) (assoc-in state [:lost] true)
     :else (-> state
               (update-in [:bird-height] + (:bird-speed state))
-              (update-in [:bird-speed] #(- (* % 0.9) 0.5)))))
+              (update-in [:bird-speed] #(- (* % 0.9) 0.5))
+              (update-in [:pipes] #(if (neg? (last (first %))) (rest %) %))
+              (update-in [:pipes] (fn [xs] (map #(update-in % [2] dec) xs))))))
 
 (defn draw-state [state]
   (q/background 240)
@@ -29,7 +39,7 @@
   (q/ellipse 50 (- 500 (:bird-height state)) 30 30)
 
   (q/rect-mode :corner)
-  (doseq [[x top bottom] (:pipes state)]
+  (doseq [[top bottom x] (take 4 (:pipes state))]
     (q/rect x 0 30 top)
     (q/rect x bottom 30 (- 500 bottom))))
 
