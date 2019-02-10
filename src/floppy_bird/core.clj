@@ -2,21 +2,31 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
+(def initial-state
+  {:lost false
+   :bird-height 250
+   :bird-speed 0
+   :pipes '([300 150 250])})
+
 (defn setup []
   (q/frame-rate 30)
   (q/color-mode :rgb)
-  {:bird-height 250
-   :pipes '([300 150 250])})
+  initial-state)
 
 (defn update-state [state]
-  state)
+  (cond
+    (:lost state) initial-state
+    (neg? (:bird-height state)) (assoc-in state [:lost] true)
+    :else (-> state
+              (update-in [:bird-height] + (:bird-speed state))
+              (update-in [:bird-speed] #(- (* % 0.9) 0.5)))))
 
 (defn draw-state [state]
   (q/background 240)
   (q/fill 255)
 
-  (q/rect-mode :center)
-  (q/rect 30 (:bird-height state) 10 10)
+  (q/ellipse-mode :center)
+  (q/ellipse 50 (- 500 (:bird-height state)) 30 30)
 
   (q/rect-mode :corner)
   (doseq [[x top bottom] (:pipes state)]
