@@ -27,8 +27,10 @@
     (neg? (:bird-height state)) (assoc-in state [:lost] true)
     :else (-> state
               (update-in [:bird-height] + (:bird-speed state))
-              (update-in [:bird-speed] #(- (* % 0.9) 0.5))
-              (update-in [:pipes] #(if (neg? (last (first %))) (rest %) %))
+              (update-in [:bird-speed] (if (q/key-pressed?)
+                                         (constantly 4)
+                                         #(- % 0.3)))
+              (update-in [:pipes] #(if (< (last (first %)) -30) (rest %) %))
               (update-in [:pipes] (fn [xs] (map #(update-in % [2] dec) xs))))))
 
 (defn draw-state [state]
