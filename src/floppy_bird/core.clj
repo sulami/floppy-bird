@@ -11,10 +11,11 @@
 
 (def initial-state
   {:lost false
+   :score 0
    :bird-height 250
    :bird-speed 0
    :pipes (map conj (repeatedly pipe-generator)
-               (iterate (partial + 150) 300))})
+               (iterate (partial + 150) 180))})
 
 (defn setup []
   (q/frame-rate 30)
@@ -26,6 +27,7 @@
     (:lost state) initial-state
     (neg? (:bird-height state)) (assoc-in state [:lost] true)
     :else (-> state
+              (update-in [:score] inc)
               (update-in [:bird-height] + (:bird-speed state))
               (update-in [:bird-speed] (if (q/key-pressed?)
                                          (constantly 5)
@@ -44,7 +46,10 @@
   (q/fill 115 191 46)
   (doseq [[top bottom x] (take 4 (:pipes state))]
     (q/rect x 0 30 top)
-    (q/rect x bottom 30 (- 500 bottom))))
+    (q/rect x bottom 30 (- 500 bottom)))
+
+  (q/fill 0)
+  (q/text (format "Score: %d" (-> state :score (/ 150) int)) 10 20))
 
 (q/defsketch floppy-bird
   :title "Floppy bird"
