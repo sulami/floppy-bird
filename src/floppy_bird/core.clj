@@ -22,14 +22,22 @@
   (q/color-mode :rgb)
   initial-state)
 
+(defn collision? [state]
+  (let [[pt pb px] (first (:pipes state))
+        bh (:bird-height state)]
+    (and (<= 15 px 65)
+         (or (<= (- bh 15) pt)
+             (<= pb (+ bh 15))))))
+
 (defn update-state [state]
   (cond
     (:lost state) initial-state
     (neg? (:bird-height state)) (assoc-in state [:lost] true)
     (< 500 (:bird-height state)) (assoc-in state [:lost] true)
+    (collision? state) (assoc-in state [:lost] true)
     :else (-> state
               (update-in [:score] inc)
-              (update-in [:bird-height] + (:bird-speed state))
+              (update-in [:bird-height] - (:bird-speed state))
               (update-in [:bird-speed] (if (q/key-pressed?)
                                          (constantly 5)
                                          #(- % 0.5)))
@@ -41,7 +49,7 @@
 
   (q/ellipse-mode :center)
   (q/fill 212 191 39)
-  (q/ellipse 50 (- 500 (:bird-height state)) 30 30)
+  (q/ellipse 50 (:bird-height state) 30 30)
 
   (q/rect-mode :corner)
   (q/fill 115 191 46)
