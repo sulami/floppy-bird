@@ -26,6 +26,7 @@
   (cond
     (:lost state) initial-state
     (neg? (:bird-height state)) (assoc-in state [:lost] true)
+    (< 500 (:bird-height state)) (assoc-in state [:lost] true)
     :else (-> state
               (update-in [:score] inc)
               (update-in [:bird-height] + (:bird-speed state))
