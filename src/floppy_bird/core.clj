@@ -54,7 +54,7 @@
   (q/rect-mode :corner)
   (q/fill 115 191 46)
   (doseq [[top bottom x] (take 4 (:pipes state))]
-    (q/rect x 0 30 top)
+    (q/rect x -1 30 top)
     (q/rect x bottom 30 (- 500 bottom)))
 
   (q/fill 0)
