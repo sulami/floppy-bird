@@ -31,7 +31,9 @@
 
 (defn update-state [state]
   (cond
-    (:lost state) initial-state
+    (:lost state) (if (q/key-pressed?)
+                    initial-state
+                    state)
     (neg? (:bird-height state)) (assoc-in state [:lost] true)
     (< 500 (:bird-height state)) (assoc-in state [:lost] true)
     (collision? state) (assoc-in state [:lost] true)
@@ -47,18 +49,27 @@
 (defn draw-state [state]
   (q/background 112 197 206)
 
-  (q/ellipse-mode :center)
-  (q/fill 212 191 39)
-  (q/ellipse 50 (:bird-height state) 30 30)
+  (if (:lost state)
+    (do
+      (q/text-align :center)
+      (q/fill 0)
+      (q/text (format "Final Score: %d" (-> state :score (/ 150) int))
+              250 250))
 
-  (q/rect-mode :corner)
-  (q/fill 115 191 46)
-  (doseq [[top bottom x] (take 4 (:pipes state))]
-    (q/rect x -1 30 top)
-    (q/rect x bottom 30 (- 500 bottom)))
+    (do
+      (q/ellipse-mode :center)
+      (q/fill 212 191 39)
+      (q/ellipse 50 (:bird-height state) 30 30)
 
-  (q/fill 0)
-  (q/text (format "Score: %d" (-> state :score (/ 150) int)) 10 20))
+      (q/rect-mode :corner)
+      (q/fill 115 191 46)
+      (doseq [[top bottom x] (take 4 (:pipes state))]
+        (q/rect x -1 30 top)
+        (q/rect x bottom 30 (- 500 bottom)))
+
+      (q/text-align :left :top)
+      (q/fill 0)
+      (q/text (format "Score: %d" (-> state :score (/ 150) int)) 10 10))))
 
 (q/defsketch floppy-bird
   :title "Floppy bird"
