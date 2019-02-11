@@ -28,19 +28,20 @@
     :else (-> state
               (update-in [:bird-height] + (:bird-speed state))
               (update-in [:bird-speed] (if (q/key-pressed?)
-                                         (constantly 4)
-                                         #(- % 0.3)))
+                                         (constantly 5)
+                                         #(- % 0.5)))
               (update-in [:pipes] #(if (< (last (first %)) -30) (rest %) %))
               (update-in [:pipes] (fn [xs] (map #(update-in % [2] dec) xs))))))
 
 (defn draw-state [state]
-  (q/background 240)
-  (q/fill 255)
+  (q/background 112 197 206)
 
   (q/ellipse-mode :center)
+  (q/fill 212 191 39)
   (q/ellipse 50 (- 500 (:bird-height state)) 30 30)
 
   (q/rect-mode :corner)
+  (q/fill 115 191 46)
   (doseq [[top bottom x] (take 4 (:pipes state))]
     (q/rect x 0 30 top)
     (q/rect x bottom 30 (- 500 bottom))))
