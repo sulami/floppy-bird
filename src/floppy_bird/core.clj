@@ -11,7 +11,7 @@
 
 (def initial-state
   {:lost false
-   :score 0
+   :time 0
    :bird-height 250
    :bird-speed 0
    :pipes (map conj (repeatedly pipe-generator)
@@ -38,7 +38,7 @@
     (< 500 (:bird-height state)) (assoc-in state [:lost] true)
     (collision? state) (assoc-in state [:lost] true)
     :else (-> state
-              (update-in [:score] inc)
+              (update-in [:time] inc)
               (update-in [:bird-height] - (:bird-speed state))
               (update-in [:bird-speed] (if (q/key-pressed?)
                                          (constantly 5)
@@ -53,7 +53,7 @@
     (do
       (q/text-align :center)
       (q/fill 0)
-      (q/text (format "Final Score: %d" (-> state :score (/ 150) int))
+      (q/text (format "Final Score: %d" (-> state :time (/ 150) int))
               250 250))
 
     (do
@@ -69,7 +69,7 @@
 
       (q/text-align :left :top)
       (q/fill 0)
-      (q/text (format "Score: %d" (-> state :score (/ 150) int)) 10 10))))
+      (q/text (format "Score: %d" (-> state :time (/ 150) int)) 10 10))))
 
 (q/defsketch floppy-bird
   :title "Floppy bird"
